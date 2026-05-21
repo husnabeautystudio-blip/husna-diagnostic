@@ -61,7 +61,24 @@ export default function HusnaDiagnostic() {
     const newAnswers = { ...answers, [QUESTIONS[currentQ].id]: value };
     setAnswers(newAnswers);
     if (currentQ < QUESTIONS.length - 1) setCurrentQ(currentQ + 1);
-    else analyzeSkin(newAnswers);
+  const toBase64 = (file) => new Promise((res, rej) => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.onload = () => {
+    const MAX = 800;
+    let w = img.width, h = img.height;
+    if (w > MAX) { h = h * MAX / w; w = MAX; }
+    if (h > MAX) { w = w * MAX / h; h = MAX; }
+    canvas.width = w; canvas.height = h;
+    ctx.drawImage(img, 0, 0, w, h);
+    const data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+    res(data);
+  };
+  img.onerror = rej;
+  img.src = URL.createObjectURL(file);
+});
+
   };
 
   const toBase64 = (file) => new Promise((res, rej) => {
