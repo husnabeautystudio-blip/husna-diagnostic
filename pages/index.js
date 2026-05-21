@@ -58,9 +58,8 @@ export default function HusnaDiagnostic() {
   };
 
   const handleAnswer = (value) => {
-    const newAnswers = { ...answers, [QUESTIONS[currentQ].id]: value };
-    setAnswers(newAnswers);
-    if (currentQ < QUESTIONS.length - 1) setCurrentQ(currentQ + 1);
+    
+  };
   const toBase64 = (file) => new Promise((res, rej) => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -72,21 +71,11 @@ export default function HusnaDiagnostic() {
     if (h > MAX) { w = w * MAX / h; h = MAX; }
     canvas.width = w; canvas.height = h;
     ctx.drawImage(img, 0, 0, w, h);
-    const data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-    res(data);
+    res(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
   };
   img.onerror = rej;
   img.src = URL.createObjectURL(file);
 });
-
-  };
-
-  const toBase64 = (file) => new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(",")[1]);
-    r.onerror = () => rej(new Error("Erreur"));
-    r.readAsDataURL(file);
-  });
 
   const analyzeSkin = async (finalAnswers) => {
     setStep("analyzing");
