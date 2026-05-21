@@ -79,6 +79,9 @@ export default function HusnaDiagnostic() {
   const [currentQ, setCurrentQ] = useState(0);
   const [result, setResult] = useState(null);
   const [soinReco, setSoinReco] = useState(null);
+  const [emailClient, setEmailClient] = useState("");
+  const [emailSent, setEmailSent] = useState(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const fileRef = useRef();
 
   function handlePhoto(e) {
@@ -165,6 +168,31 @@ export default function HusnaDiagnostic() {
     }
   }
 
+  async function sendEmail(type) {
+    setSendingEmail(true);
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          to: emailClient,
+          diagnostic: result,
+          soin: soinReco,
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setEmailSent(type);
+      } else {
+        alert("Erreur lors de l'envoi. Réessaie.");
+      }
+    } catch(err) {
+      alert("Erreur lors de l'envoi.");
+    }
+    setSendingEmail(false);
+  }
+
   function reset() {
     setStep("welcome");
     setPhoto(null);
@@ -173,10 +201,16 @@ export default function HusnaDiagnostic() {
     setCurrentQ(0);
     setResult(null);
     setSoinReco(null);
+    setEmailClient("");
+    setEmailSent(null);
   }
 
   function formatResult(text) {
     return text.split("\n").map((line, i) => {
+      if (line.match(/^#+\s/)) {
+        const content = line.replace(/^#+\s/, "");
+        return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{content}</h3>;
+      }
       if (line.match(/^\d\.\s?\*\*/)) {
         const content = line.replace(/^\d\.\s?\*\*/, "").replace(/\*\*$/, "").replace(/\*\*/g, "");
         const num = line.match(/^\d/)[0];
@@ -185,15 +219,16 @@ export default function HusnaDiagnostic() {
       if (line.startsWith("**") && line.endsWith("**")) {
         return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{line.replace(/\*\*/g, "")}</h3>;
       }
-      if (line.startsWith("- ") || line.startsWith("• ")) {
+      if (line.startsWith("- ") || line.startsWith("• ") || line.match(/^[\*✦]\s/)) {
+        const txt = line.replace(/^[-•\*✦]\s/, "").replace(/\*\*(.*?)\*\*/g, "$1");
         return (
           <div key={i} style={{ display: "flex", gap: "0.45rem", margin: "0.2rem 0" }}>
             <span style={{ color: C.gold, flexShrink: 0, fontWeight: 700 }}>✦</span>
-            <span style={{ color: C.dark, fontSize: "0.85rem", lineHeight: 1.6 }}>{line.slice(2).replace(/\*\*(.*?)\*\*/g, "$1")}</span>
+            <span style={{ color: C.dark, fontSize: "0.85rem", lineHeight: 1.6 }}>{txt}</span>
           </div>
         );
       }
-      if (line.trim() === "") return <div key={i} style={{ height: "0.28rem" }} />;
+      if (line.trim() === "" || line === "---") return <div key={i} style={{ height: "0.28rem" }} />;
       return <p key={i} style={{ color: C.dark, fontSize: "0.85rem", lineHeight: 1.7, margin: "0.1rem 0" }}>{line.replace(/\*\*(.*?)\*\*/g, "$1")}</p>;
     });
   }
@@ -217,6 +252,10 @@ export default function HusnaDiagnostic() {
         .upload-zone:hover { border-color: #5d2510; }
         .btn-book { display: block; background: #d49d10; color: #412F26; text-align: center; border-radius: 50px; padding: 0.82rem 1.5rem; font-size: 0.88rem; font-weight: 700; text-decoration: none; }
         .btn-outline { background: transparent; color: #5d2510; border: 1.5px solid #5d2510; border-radius: 50px; padding: 0.72rem 1.5rem; font-size: 0.83rem; font-weight: 600; cursor: pointer; width: 100%; font-family: 'DM Sans', sans-serif; margin-bottom: 0.7rem; }
+        .email-input { width: 100%; border: 1px solid #cbb89d; border-radius: 10px; padding: 0.7rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: #412F26; outline: none; margin-bottom: 0.6rem; }
+        .email-input:focus { border-color: #5d2510; }
+        .btn-email-client { display: block; width: 100%; background: #5d2510; color: #fff; border: none; border-radius: 50px; padding: 0.75rem 1.5rem; font-size: 0.83rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-bottom: 0.5rem; }
+        .btn-email-husna { display: block; width: 100%; background: transparent; color: #5d2510; border: 1.5px solid #5d2510; border-radius: 50px; padding: 0.72rem 1.5rem; font-size: 0.83rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-bottom: 0.5rem; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbb89d; border-radius: 4px; }
       `}</style>
@@ -291,9 +330,11 @@ export default function HusnaDiagnostic() {
                   <div style={{ fontFamily: "'Playfair Display', serif", color: C.dark, fontSize: "1.08rem", fontWeight: 700 }}>Ton analyse de peau</div>
                 </div>
               </div>
-              <div style={{ maxHeight: "36vh", overflowY: "auto", paddingRight: "0.25rem", marginBottom: "1.2rem" }}>
+
+              <div style={{ maxHeight: "30vh", overflowY: "auto", paddingRight: "0.25rem", marginBottom: "1.2rem" }}>
                 {formatResult(result)}
               </div>
+
               {soinReco && (
                 <div style={{ background: "linear-gradient(135deg, #5d2510, #7a3520)", borderRadius: "16px", padding: "1.25rem 1.35rem", marginBottom: "1.1rem" }}>
                   <div style={{ color: "rgba(237,225,210,0.65)", fontSize: "0.66rem", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "0.45rem", fontWeight: 600 }}>✦ Le soin Husna Beauty fait pour toi</div>
@@ -313,6 +354,43 @@ export default function HusnaDiagnostic() {
                   <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn-book">Réserver ce soin chez Husna Beauty →</a>
                 </div>
               )}
+
+              {/* EMAIL SECTION */}
+              <div style={{ background: "rgba(237,225,210,0.4)", borderRadius: "14px", padding: "1.1rem", marginBottom: "1rem" }}>
+                <div style={{ color: C.brown, fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.7rem" }}>📧 Recevoir ce diagnostic</div>
+                
+                {emailSent === "client" && (
+                  <div style={{ color: "#2d7a2d", fontSize: "0.82rem", background: "rgba(45,122,45,0.1)", borderRadius: "8px", padding: "0.6rem 0.8rem", marginBottom: "0.6rem" }}>
+                    ✅ Diagnostic envoyé à ton email !
+                  </div>
+                )}
+                {emailSent === "husna" && (
+                  <div style={{ color: "#2d7a2d", fontSize: "0.82rem", background: "rgba(45,122,45,0.1)", borderRadius: "8px", padding: "0.6rem 0.8rem", marginBottom: "0.6rem" }}>
+                    ✅ Envoyé à Husna Beauty !
+                  </div>
+                )}
+
+                {!emailSent && (
+                  <>
+                    <input
+                      className="email-input"
+                      type="email"
+                      placeholder="Ton adresse email (optionnel)"
+                      value={emailClient}
+                      onChange={e => setEmailClient(e.target.value)}
+                    />
+                    {emailClient && (
+                      <button className="btn-email-client" onClick={() => sendEmail("client")} disabled={sendingEmail}>
+                        {sendingEmail ? "Envoi en cours…" : "✉️ Recevoir mon diagnostic par email"}
+                      </button>
+                    )}
+                    <button className="btn-email-husna" onClick={() => sendEmail("husna")} disabled={sendingEmail}>
+                      {sendingEmail ? "Envoi en cours…" : "📤 Envoyer à Husna Beauty"}
+                    </button>
+                  </>
+                )}
+              </div>
+
               <div style={{ paddingTop: "0.85rem", borderTop: "1px solid rgba(203,184,157,0.38)" }}>
                 <button className="btn-outline" onClick={reset}>✦ Nouveau diagnostic</button>
                 <p style={{ color: "#9a8a82", fontSize: "0.69rem", textAlign: "center", lineHeight: 1.5 }}>Ce diagnostic est indicatif. Pour un bilan complet, prends rendez-vous chez Husna Beauty.</p>
