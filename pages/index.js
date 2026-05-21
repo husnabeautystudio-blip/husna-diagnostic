@@ -16,25 +16,61 @@ const SOINS = [
 ];
 
 function recommanderSoin(answers) {
-  const { skin_type, main_concern, tone } = answers;
-  const isMelanisee = ["tan", "deep"].includes(tone);
-  if (main_concern === "pigmentation") return isMelanisee ? SOINS.find(s => s.id === "peeling_melanine") : SOINS.find(s => s.id === "cure_gold");
-  if (main_concern === "acne") return (skin_type === "oily" || skin_type === "combo") ? SOINS.find(s => s.id === "purifiant") : SOINS.find(s => s.id === "glow");
-  if (main_concern === "hydration") return SOINS.find(s => s.id === "hydraface");
-  if (main_concern === "aging") return SOINS.find(s => s.id === "dermaplaning");
-  if (main_concern === "sensitivity") return SOINS.find(s => s.id === "glow");
-  if (skin_type === "oily" || skin_type === "combo") return SOINS.find(s => s.id === "purifiant");
-  if (skin_type === "dry") return SOINS.find(s => s.id === "hydraface");
-  if (skin_type === "sensitive") return SOINS.find(s => s.id === "glow");
+  const skin = answers.skin_type;
+  const concern = answers.main_concern;
+  const tone = answers.tone;
+  const isMelanisee = tone === "tan" || tone === "deep";
+  if (concern === "pigmentation") {
+    return isMelanisee ? SOINS.find(s => s.id === "peeling_melanine") : SOINS.find(s => s.id === "cure_gold");
+  }
+  if (concern === "acne") {
+    return (skin === "oily" || skin === "combo") ? SOINS.find(s => s.id === "purifiant") : SOINS.find(s => s.id === "glow");
+  }
+  if (concern === "hydration") return SOINS.find(s => s.id === "hydraface");
+  if (concern === "aging") return SOINS.find(s => s.id === "dermaplaning");
+  if (concern === "sensitivity") return SOINS.find(s => s.id === "glow");
+  if (skin === "oily" || skin === "combo") return SOINS.find(s => s.id === "purifiant");
+  if (skin === "dry") return SOINS.find(s => s.id === "hydraface");
+  if (skin === "sensitive") return SOINS.find(s => s.id === "glow");
   return SOINS.find(s => s.id === "diagnostic_premium");
 }
 
 const QUESTIONS = [
-  { id: "skin_type", question: "Comment se comporte ta peau en général ?", options: [{ value: "dry", label: "Tiraillements, peau sèche ou inconfortable" }, { value: "oily", label: "Brillances, pores visibles, tendance grasse" }, { value: "combo", label: "Zone T grasse, joues normales ou sèches" }, { value: "normal", label: "Équilibrée, peu de problèmes" }, { value: "sensitive", label: "Réactive, rougeurs, inconforts fréquents" }] },
-  { id: "main_concern", question: "Quelle est ta préoccupation principale en ce moment ?", options: [{ value: "acne", label: "Imperfections, boutons, points noirs" }, { value: "pigmentation", label: "Taches, hyperpigmentation, teint inégal" }, { value: "aging", label: "Rides, manque de fermeté, relâchement" }, { value: "hydration", label: "Déshydratation, manque d'éclat" }, { value: "sensitivity", label: "Rougeurs, irritations, réactivité" }] },
-  { id: "tone", question: "Quelle est ta carnation ?", options: [{ value: "very_light", label: "Très claire — rougit facilement" }, { value: "light", label: "Claire — hâle léger en été" }, { value: "medium", label: "Médium — bronze doucement" }, { value: "tan", label: "Mate — tendance aux taches post-inflammatoires" }, { value: "deep", label: "Foncée à très foncée — peau riche en mélanine" }] },
-  { id: "routine", question: "Ta routine actuelle c'est plutôt…", options: [{ value: "none", label: "Minimaliste ou inexistante" }, { value: "basic", label: "Nettoyant + hydratant, c'est tout" }, { value: "moderate", label: "Sérum + crème + SPF au quotidien" }, { value: "advanced", label: "Multi-étapes, actifs, exfoliants" }, { value: "professional", label: "Soins en institut réguliers" }] },
-  { id: "lifestyle", question: "Quel facteur impacte le plus ta peau selon toi ?", options: [{ value: "stress", label: "Stress, fatigue, manque de sommeil" }, { value: "diet", label: "Alimentation, hydratation" }, { value: "hormones", label: "Hormones, cycle, grossesse" }, { value: "environment", label: "Pollution, soleil, climat" }, { value: "unknown", label: "Je ne sais pas vraiment" }] },
+  { id: "skin_type", question: "Comment se comporte ta peau en général ?", options: [
+    { value: "dry", label: "Tiraillements, peau sèche ou inconfortable" },
+    { value: "oily", label: "Brillances, pores visibles, tendance grasse" },
+    { value: "combo", label: "Zone T grasse, joues normales ou sèches" },
+    { value: "normal", label: "Équilibrée, peu de problèmes" },
+    { value: "sensitive", label: "Réactive, rougeurs, inconforts fréquents" }
+  ]},
+  { id: "main_concern", question: "Quelle est ta préoccupation principale en ce moment ?", options: [
+    { value: "acne", label: "Imperfections, boutons, points noirs" },
+    { value: "pigmentation", label: "Taches, hyperpigmentation, teint inégal" },
+    { value: "aging", label: "Rides, manque de fermeté, relâchement" },
+    { value: "hydration", label: "Déshydratation, manque d'éclat" },
+    { value: "sensitivity", label: "Rougeurs, irritations, réactivité" }
+  ]},
+  { id: "tone", question: "Quelle est ta carnation ?", options: [
+    { value: "very_light", label: "Très claire — rougit facilement" },
+    { value: "light", label: "Claire — hâle léger en été" },
+    { value: "medium", label: "Médium — bronze doucement" },
+    { value: "tan", label: "Mate — tendance aux taches post-inflammatoires" },
+    { value: "deep", label: "Foncée à très foncée — peau riche en mélanine" }
+  ]},
+  { id: "routine", question: "Ta routine actuelle c'est plutôt…", options: [
+    { value: "none", label: "Minimaliste ou inexistante" },
+    { value: "basic", label: "Nettoyant + hydratant, c'est tout" },
+    { value: "moderate", label: "Sérum + crème + SPF au quotidien" },
+    { value: "advanced", label: "Multi-étapes, actifs, exfoliants" },
+    { value: "professional", label: "Soins en institut réguliers" }
+  ]},
+  { id: "lifestyle", question: "Quel facteur impacte le plus ta peau selon toi ?", options: [
+    { value: "stress", label: "Stress, fatigue, manque de sommeil" },
+    { value: "diet", label: "Alimentation, hydratation" },
+    { value: "hormones", label: "Hormones, cycle, grossesse" },
+    { value: "environment", label: "Pollution, soleil, climat" },
+    { value: "unknown", label: "Je ne sais pas vraiment" }
+  ]},
 ];
 
 const C = { beige: "#ede1d2", dark: "#412F26", brown: "#5d2510", tan: "#cbb89d", gold: "#d49d10" };
@@ -49,166 +85,230 @@ export default function HusnaDiagnostic() {
   const [soinReco, setSoinReco] = useState(null);
   const fileRef = useRef();
 
-  const handlePhoto = (e) => {
+  function handlePhoto(e) {
     const file = e.target.files[0];
     if (!file) return;
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
     setStep("questions");
-  };
+  }
 
-  const handleAnswer = (value) => {
-    
-  };
-  const toBase64 = (file) => new Promise((res, rej) => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
-  img.onload = () => {
-    const MAX = 800;
-    let w = img.width, h = img.height;
-    if (w > MAX) { h = h * MAX / w; w = MAX; }
-    if (h > MAX) { w = w * MAX / h; h = MAX; }
-    canvas.width = w; canvas.height = h;
-    ctx.drawImage(img, 0, 0, w, h);
-    res(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
-  };
-  img.onerror = rej;
-  img.src = URL.createObjectURL(file);
-});
+  function handleAnswer(value) {
+    const newAnswers = { ...answers, [QUESTIONS[currentQ].id]: value };
+    setAnswers(newAnswers);
+    if (currentQ < QUESTIONS.length - 1) {
+      setCurrentQ(currentQ + 1);
+    } else {
+      analyzeSkin(newAnswers);
+    }
+  }
 
-  const analyzeSkin = async (finalAnswers) => {
+  function compressImage(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement("canvas");
+          var MAX = 800;
+          var w = img.width;
+          var h = img.height;
+          if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+          canvas.width = w;
+          canvas.height = h;
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          var dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          resolve(dataUrl.split(",")[1]);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function analyzeSkin(finalAnswers) {
     setStep("analyzing");
-    const soin = recommanderSoin(finalAnswers);
+    var soin = recommanderSoin(finalAnswers);
     setSoinReco(soin);
     try {
-      const base64 = await toBase64(photo);
-      const answersText = QUESTIONS.map(q => q.question + "\n→ " + (q.options.find(o => o.value === finalAnswers[q.id])?.label || "")).join("\n\n");
-      const response = await fetch("/api/claude", {
+      var base64 = await compressImage(photo);
+      var answersText = QUESTIONS.map(function(q) {
+        var opt = q.options.find(function(o) { return o.value === finalAnswers[q.id]; });
+        return q.question + "\n→ " + (opt ? opt.label : "");
+      }).join("\n\n");
+
+      var response = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 800,
-          messages: [{ role: "user", content: [
-            { type: "image", source: { type: "base64", media_type: photo.type, data: base64 } },
-            { type: "text", text: `Tu es l'IA de diagnostic de HUSNA Beauty, expert en peaux mélanisées. Analyse avec bienveillance et expertise.\n\nRéponses :\n${answersText}\n\nDonne un diagnostic en 4 parties :\n1. **Type de peau identifié**\n2. **Ce que j'observe sur ta peau** (3-4 observations basées sur la photo)\n3. **Tes besoins prioritaires** (top 3 en bullet points)\n4. **Mes conseils Husna Beauty** (actifs, habitudes, conseils adaptés à ta carnation)\n\nSois chaleureuse, directe, experte. Max 250 mots.` }
-          ]}]
-        }),
+          messages: [{
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+              { type: "text", text: "Tu es l'IA de diagnostic de HUSNA Beauty, expert en peaux mélanisées. Analyse avec bienveillance et expertise.\n\nRéponses :\n" + answersText + "\n\nDonne un diagnostic en 4 parties :\n1. **Type de peau identifié**\n2. **Ce que j'observe sur ta peau** (3-4 observations basées sur la photo)\n3. **Tes besoins prioritaires** (top 3 en bullet points)\n4. **Mes conseils Husna Beauty** (actifs, habitudes, conseils adaptés à ta carnation)\n\nSois chaleureuse, directe, experte. Max 250 mots." }
+            ]
+          }]
+        })
       });
-      const data = await response.json();
-      const text = data.content?.map(b => b.text || "").join("\n") || "Diagnostic indisponible.";
-      setResult(text);
+
+      var data = await response.json();
+      var text = "";
+      if (data.content) {
+        data.content.forEach(function(b) { if (b.text) text += b.text; });
+      }
+      setResult(text || "Diagnostic indisponible.");
       setStep("result");
-    } catch (error) {
+    } catch(err) {
       setResult("Une erreur est survenue. Réessaie dans un instant.");
       setStep("result");
     }
-  };
+  }
 
-  const reset = () => { setStep("welcome"); setPhoto(null); setPhotoPreview(null); setAnswers({}); setCurrentQ(0); setResult(null); setSoinReco(null); };
+  function reset() {
+    setStep("welcome");
+    setPhoto(null);
+    setPhotoPreview(null);
+    setAnswers({});
+    setCurrentQ(0);
+    setResult(null);
+    setSoinReco(null);
+  }
 
-  const formatResult = (text) => text.split("\n").map((line, i) => {
-    if (line.match(/^\d\.\s?\*\*/)) { const content = line.replace(/^\d\.\s?\*\*/, "").replace(/\*\*$/, "").replace(/\*\*/g, ""); const num = line.match(/^\d/)[0]; return <h3 key={i} style={{ color: C.brown, fontFamily: "Georgia, serif", fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{num}. {content}</h3>; }
-    if (line.startsWith("**") && line.endsWith("**")) return <h3 key={i} style={{ color: C.brown, fontFamily: "Georgia, serif", fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{line.replace(/\*\*/g, "")}</h3>;
-    if (line.startsWith("- ") || line.startsWith("• ")) return <div key={i} style={{ display: "flex", gap: "0.45rem", margin: "0.2rem 0" }}><span style={{ color: C.gold, flexShrink: 0, fontWeight: 700 }}>✦</span><span style={{ color: C.dark, fontSize: "0.85rem", lineHeight: 1.6 }}>{line.slice(2).replace(/\*\*(.*?)\*\*/g, "$1")}</span></div>;
-    if (line.trim() === "") return <div key={i} style={{ height: "0.28rem" }} />;
-    return <p key={i} style={{ color: C.dark, fontSize: "0.85rem", lineHeight: 1.7, margin: "0.1rem 0" }}>{line.replace(/\*\*(.*?)\*\*/g, "$1")}</p>;
-  });
+  function formatResult(text) {
+    return text.split("\n").map(function(line, i) {
+      if (line.match(/^\d\.\s?\*\*/)) {
+        var content = line.replace(/^\d\.\s?\*\*/, "").replace(/\*\*$/, "").replace(/\*\*/g, "");
+        var num = line.match(/^\d/)[0];
+        return React.createElement("h3", { key: i, style: { color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 } }, num + ". " + content);
+      }
+      if (line.startsWith("**") && line.endsWith("**")) {
+        return React.createElement("h3", { key: i, style: { color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 } }, line.replace(/\*\*/g, ""));
+      }
+      if (line.startsWith("- ") || line.startsWith("• ")) {
+        return React.createElement("div", { key: i, style: { display: "flex", gap: "0.45rem", margin: "0.2rem 0" } },
+          React.createElement("span", { style: { color: C.gold, flexShrink: 0, fontWeight: 700 } }, "✦"),
+          React.createElement("span", { style: { color: C.dark, fontSize: "0.85rem", lineHeight: 1.6 } }, line.slice(2).replace(/\*\*(.*?)\*\*/g, "$1"))
+        );
+      }
+      if (line.trim() === "") return React.createElement("div", { key: i, style: { height: "0.28rem" } });
+      return React.createElement("p", { key: i, style: { color: C.dark, fontSize: "0.85rem", lineHeight: 1.7, margin: "0.1rem 0" } }, line.replace(/\*\*(.*?)\*\*/g, "$1"));
+    });
+  }
 
-  return (
-    <>
-      <Head><title>Husna Beauty – Diagnostic de Peau</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Cormorant+Garamond:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #ede1d2; font-family: 'DM Sans', sans-serif; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
-        .anim { animation: fadeUp 0.42s ease both; }
-        .opt:hover { background: rgba(93,37,16,0.06) !important; border-color: #5d2510 !important; color: #5d2510 !important; }
-        .upload-zone:hover { border-color: #5d2510 !important; background: rgba(93,37,16,0.03) !important; }
-        .btn-book:hover { opacity: 0.88; transform: scale(0.99); }
-        .btn-outline:hover { background: rgba(93,37,16,0.05) !important; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbb89d; border-radius: 4px; }
-      `}</style>
+  return React.createElement(React.Fragment, null,
+    React.createElement(Head, null,
+      React.createElement("title", null, "Husna Beauty – Diagnostic de Peau"),
+      React.createElement("meta", { name: "viewport", content: "width=device-width, initial-scale=1" })
+    ),
+    React.createElement("style", null, `
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Cormorant+Garamond:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: #ede1d2; font-family: 'DM Sans', sans-serif; }
+      @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+      .anim { animation: fadeUp 0.42s ease both; }
+      .opt-btn { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #cbb89d; border-radius: 11px; padding: 0.8rem 1rem; color: #412F26; font-size: 0.84rem; cursor: pointer; margin-bottom: 0.48rem; font-family: 'DM Sans', sans-serif; transition: all 0.2s; line-height: 1.5; }
+      .opt-btn:hover { background: rgba(93,37,16,0.06); border-color: #5d2510; color: #5d2510; }
+      .upload-zone { border: 2px dashed #cbb89d; border-radius: 16px; padding: 1.9rem 1.4rem; text-align: center; cursor: pointer; background: rgba(237,225,210,0.3); transition: all 0.25s; }
+      .upload-zone:hover { border-color: #5d2510; background: rgba(93,37,16,0.03); }
+      .btn-book { display: block; background: #d49d10; color: #412F26; text-align: center; border-radius: 50px; padding: 0.82rem 1.5rem; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+      .btn-outline { background: transparent; color: #5d2510; border: 1.5px solid #5d2510; border-radius: 50px; padding: 0.72rem 1.5rem; font-size: 0.83rem; font-weight: 600; cursor: pointer; width: 100%; font-family: 'DM Sans', sans-serif; transition: all 0.2s; margin-bottom: 0.7rem; }
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-thumb { background: #cbb89d; border-radius: 4px; }
+    `),
+    React.createElement("div", { style: { minHeight: "100vh", background: C.beige, display: "flex", flexDirection: "column", alignItems: "center", padding: "1.5rem 1rem" } },
+      React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "1.3rem" } },
+        React.createElement("img", { src: "data:image/jpeg;base64," + LOGO_B64, alt: "Husna Beauty", style: { width: "100px", height: "100px", objectFit: "contain", borderRadius: "50%", border: "3px solid #cbb89d", background: C.beige, padding: "4px" } }),
+        React.createElement("div", { style: { marginTop: "0.45rem", color: C.brown, fontSize: "0.67rem", letterSpacing: "0.25em", textTransform: "uppercase" } }, "Diagnostic de peau gratuit")
+      ),
+      React.createElement("div", { className: "anim", style: { background: "#fff", borderRadius: "20px", boxShadow: "0 4px 36px rgba(65,47,38,0.09)", padding: "1.9rem 1.7rem", maxWidth: "520px", width: "100%", border: "1px solid rgba(203,184,157,0.35)" } },
 
-      <div style={{ minHeight: "100vh", background: C.beige, display: "flex", flexDirection: "column", alignItems: "center", padding: "1.5rem 1rem" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "1.3rem" }}>
-          <img src={`data:image/jpeg;base64,${LOGO_B64}`} alt="Husna Beauty" style={{ width: "100px", height: "100px", objectFit: "contain", borderRadius: "50%", border: `3px solid ${C.tan}`, background: C.beige, padding: "4px" }} />
-          <div style={{ marginTop: "0.45rem", color: C.brown, fontSize: "0.67rem", letterSpacing: "0.25em", textTransform: "uppercase", fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>Diagnostic de peau gratuit</div>
-        </div>
+        step === "welcome" && React.createElement("div", null,
+          React.createElement("h1", { style: { fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: C.dark, fontWeight: 700, lineHeight: 1.3, marginBottom: "0.6rem" } }, "Ton diagnostic", React.createElement("br"), "peau personnalisé"),
+          React.createElement("p", { style: { color: "#6a5a52", fontSize: "0.86rem", lineHeight: 1.65, marginBottom: "1.6rem" } }, "Uploade une photo en lumière naturelle, réponds à 5 questions — et reçois une analyse experte avec le soin Husna Beauty fait pour toi."),
+          React.createElement("div", { className: "upload-zone", onClick: function() { fileRef.current.click(); } },
+            React.createElement("div", { style: { fontSize: "1.9rem", marginBottom: "0.65rem" } }, "📸"),
+            React.createElement("div", { style: { fontFamily: "'Playfair Display', serif", color: C.brown, fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.3rem" } }, "Ajoute une photo de ta peau"),
+            React.createElement("div", { style: { color: "#8a7a72", fontSize: "0.76rem", marginBottom: "0.85rem" } }, "Lumière naturelle · Visage ou zone à analyser"),
+            React.createElement("span", { style: { background: C.brown, color: "#fff", borderRadius: "50px", padding: "0.5rem 1.3rem", fontSize: "0.8rem", fontWeight: 600 } }, "Choisir une photo")
+          ),
+          React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", style: { display: "none" }, onChange: handlePhoto }),
+          React.createElement("div", { style: { marginTop: "1rem", padding: "0.65rem 0.85rem", background: "rgba(237,225,210,0.5)", borderRadius: "10px", display: "flex", gap: "0.5rem" } },
+            React.createElement("span", null, "🔒"),
+            React.createElement("p", { style: { color: "#8a7a72", fontSize: "0.72rem", lineHeight: 1.5 } }, "Ta photo est utilisée uniquement pour ce diagnostic et n'est pas conservée.")
+          )
+        ),
 
-        <div className="anim" style={{ background: "#fff", borderRadius: "20px", boxShadow: "0 4px 36px rgba(65,47,38,0.09)", padding: "1.9rem 1.7rem", maxWidth: "520px", width: "100%", border: `1px solid rgba(203,184,157,0.35)` }}>
+        step === "questions" && React.createElement("div", { className: "anim" },
+          photoPreview && React.createElement("div", { style: { display: "flex", alignItems: "center", gap: "0.7rem", marginBottom: "1.2rem", padding: "0.52rem 0.8rem", background: "rgba(237,225,210,0.4)", borderRadius: "11px" } },
+            React.createElement("img", { src: photoPreview, alt: "", style: { width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", border: "2px solid #cbb89d" } }),
+            React.createElement("span", { style: { color: "#6a5a52", fontSize: "0.78rem" } }, "Photo reçue ✓ — 5 questions rapides")
+          ),
+          React.createElement("div", { style: { marginBottom: "1.3rem" } },
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: "0.42rem" } },
+              React.createElement("span", { style: { color: C.brown, fontSize: "0.69rem", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600 } }, "Question " + (currentQ + 1) + " / " + QUESTIONS.length),
+              React.createElement("span", { style: { color: C.tan, fontSize: "0.69rem" } }, Math.round((currentQ / QUESTIONS.length) * 100) + "%")
+            ),
+            React.createElement("div", { style: { background: "rgba(203,184,157,0.3)", borderRadius: "50px", height: "3px", overflow: "hidden" } },
+              React.createElement("div", { style: { height: "100%", background: "linear-gradient(90deg, #5d2510, #d49d10)", borderRadius: "50px", width: (currentQ / QUESTIONS.length * 100) + "%", transition: "width 0.4s ease" } })
+            )
+          ),
+          React.createElement("h2", { style: { fontFamily: "'Playfair Display', serif", fontSize: "1.18rem", color: C.dark, fontWeight: 700, lineHeight: 1.4, marginBottom: "1.05rem" } }, QUESTIONS[currentQ].question),
+          QUESTIONS[currentQ].options.map(function(opt) {
+            return React.createElement("button", { key: opt.value, className: "opt-btn", onClick: function() { handleAnswer(opt.value); } }, opt.label);
+          })
+        ),
 
-          {step === "welcome" && (
-            <div>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: C.dark, fontWeight: 700, lineHeight: 1.3, marginBottom: "0.6rem" }}>Ton diagnostic<br />peau personnalisé</h1>
-              <p style={{ color: "#6a5a52", fontSize: "0.86rem", lineHeight: 1.65, marginBottom: "1.6rem" }}>Uploade une photo en lumière naturelle, réponds à 5 questions — et reçois une analyse experte avec le soin Husna Beauty fait pour toi.</p>
-              <div className="upload-zone" onClick={() => fileRef.current.click()} style={{ border: `2px dashed ${C.tan}`, borderRadius: "16px", padding: "1.9rem 1.4rem", textAlign: "center", cursor: "pointer", background: "rgba(237,225,210,0.3)", transition: "all 0.25s" }}>
-                <div style={{ fontSize: "1.9rem", marginBottom: "0.65rem" }}>📸</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", color: C.brown, fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.3rem" }}>Ajoute une photo de ta peau</div>
-                <div style={{ color: "#8a7a72", fontSize: "0.76rem", marginBottom: "0.85rem" }}>Lumière naturelle · Visage ou zone à analyser</div>
-                <span style={{ background: C.brown, color: "#fff", borderRadius: "50px", padding: "0.5rem 1.3rem", fontSize: "0.8rem", fontWeight: 600 }}>Choisir une photo</span>
-              </div>
-              <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhoto} />
-              <div style={{ marginTop: "1rem", padding: "0.65rem 0.85rem", background: "rgba(237,225,210,0.5)", borderRadius: "10px", display: "flex", gap: "0.5rem" }}>
-                <span>🔒</span>
-                <p style={{ color: "#8a7a72", fontSize: "0.72rem", lineHeight: 1.5 }}>Ta photo est utilisée uniquement pour ce diagnostic et n'est pas conservée.</p>
-              </div>
-            </div>
-          )}
+        step === "analyzing" && React.createElement("div", { className: "anim", style: { textAlign: "center", padding: "2.5rem 0" } },
+          React.createElement("div", { style: { width: "75px", height: "75px", borderRadius: "50%", background: "rgba(93,37,16,0.07)", border: "2px solid rgba(93,37,16,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.9rem", margin: "0 auto 1.3rem", animation: "pulse 2s infinite" } }, "✨"),
+          React.createElement("h2", { style: { fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: C.dark, fontWeight: 700, marginBottom: "0.6rem" } }, "Analyse en cours…"),
+          React.createElement("p", { style: { color: "#6a5a52", fontSize: "0.84rem", lineHeight: 1.6 } }, "L'IA examine ta photo et tes réponses pour préparer ton diagnostic sur mesure."),
+          React.createElement("div", { style: { display: "flex", justifyContent: "center", gap: "0.36rem", marginTop: "1.3rem" } },
+            [0,1,2].map(function(i) { return React.createElement("div", { key: i, style: { width: "6px", height: "6px", borderRadius: "50%", background: C.brown, animation: "pulse 1.4s " + (i * 0.2) + "s infinite" } }); })
+          )
+        ),
 
-          {step === "questions" && (
-            <div className="anim">
-              {photoPreview && <div style={{ display: "flex", alignItems: "center", gap: "0.7rem", marginBottom: "1.2rem", padding: "0.52rem 0.8rem", background: "rgba(237,225,210,0.4)", borderRadius: "11px" }}><img src={photoPreview} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", border: `2px solid ${C.tan}` }} /><span style={{ color: "#6a5a52", fontSize: "0.78rem" }}>Photo reçue ✓ — 5 questions rapides</span></div>}
-              <div style={{ marginBottom: "1.3rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.42rem" }}><span style={{ color: C.brown, fontSize: "0.69rem", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600 }}>Question {currentQ + 1} / {QUESTIONS.length}</span><span style={{ color: C.tan, fontSize: "0.69rem" }}>{Math.round((currentQ / QUESTIONS.length) * 100)}%</span></div>
-                <div style={{ background: "rgba(203,184,157,0.3)", borderRadius: "50px", height: "3px", overflow: "hidden" }}><div style={{ height: "100%", background: `linear-gradient(90deg, ${C.brown}, ${C.gold})`, borderRadius: "50px", width: `${(currentQ / QUESTIONS.length) * 100}%`, transition: "width 0.4s ease" }} /></div>
-              </div>
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.18rem", color: C.dark, fontWeight: 700, lineHeight: 1.4, marginBottom: "1.05rem" }}>{QUESTIONS[currentQ].question}</h2>
-              {QUESTIONS[currentQ].options.map(opt => <button key={opt.value} className="opt" onClick={() => handleAnswer(opt.value)} style={{ display: "block", width: "100%", textAlign: "left", background: "#fff", border: `1px solid ${C.tan}`, borderRadius: "11px", padding: "0.8rem 1rem", color: C.dark, fontSize: "0.84rem", cursor: "pointer", marginBottom: "0.48rem", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", lineHeight: 1.5 }}>{opt.label}</button>)}
-            </div>
-          )}
-
-          {step === "analyzing" && (
-            <div className="anim" style={{ textAlign: "center", padding: "2.5rem 0" }}>
-              <div style={{ width: "75px", height: "75px", borderRadius: "50%", background: "rgba(93,37,16,0.07)", border: "2px solid rgba(93,37,16,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.9rem", margin: "0 auto 1.3rem", animation: "pulse 2s infinite" }}>✨</div>
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: C.dark, fontWeight: 700, marginBottom: "0.6rem" }}>Analyse en cours…</h2>
-              <p style={{ color: "#6a5a52", fontSize: "0.84rem", lineHeight: 1.6 }}>L'IA examine ta photo et tes réponses pour préparer ton diagnostic sur mesure.</p>
-              <div style={{ display: "flex", justifyContent: "center", gap: "0.36rem", marginTop: "1.3rem" }}>{[0,1,2].map(i => <div key={i} style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.brown, animation: `pulse 1.4s ${i * 0.2}s infinite` }} />)}</div>
-            </div>
-          )}
-
-          {step === "result" && (
-            <div className="anim">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1rem", paddingBottom: "1rem", borderBottom: `1px solid rgba(203,184,157,0.4)` }}>
-                {photoPreview && <img src={photoPreview} alt="" style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", border: `2px solid ${C.tan}`, flexShrink: 0 }} />}
-                <div><div style={{ color: C.brown, fontSize: "0.67rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600, marginBottom: "0.12rem" }}>Husna Beauty · Diagnostic</div><div style={{ fontFamily: "'Playfair Display', serif", color: C.dark, fontSize: "1.08rem", fontWeight: 700 }}>Ton analyse de peau</div></div>
-              </div>
-              <div style={{ maxHeight: "36vh", overflowY: "auto", paddingRight: "0.25rem", marginBottom: "1.2rem" }}>{formatResult(result)}</div>
-              {soinReco && (
-                <div style={{ background: `linear-gradient(135deg, ${C.brown}, #7a3520)`, borderRadius: "16px", padding: "1.25rem 1.35rem", marginBottom: "1.1rem" }}>
-                  <div style={{ color: "rgba(237,225,210,0.65)", fontSize: "0.66rem", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "0.45rem", fontWeight: 600 }}>✦ Le soin Husna Beauty fait pour toi</div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.45rem" }}>
-                    <div style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontSize: "1.08rem", fontWeight: 700, flex: 1 }}>{soinReco.nom}</div>
-                    <div style={{ textAlign: "right", flexShrink: 0, marginLeft: "0.75rem" }}><div style={{ color: C.gold, fontSize: "1rem", fontWeight: 700 }}>{soinReco.prix}</div><div style={{ color: "rgba(237,225,210,0.6)", fontSize: "0.71rem" }}>{soinReco.duree}</div></div>
-                  </div>
-                  <p style={{ color: "rgba(237,225,210,0.82)", fontSize: "0.81rem", lineHeight: 1.6, marginBottom: "1rem" }}>{soinReco.desc}</p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginBottom: "1rem" }}>{soinReco.tags.map(tag => <span key={tag} style={{ background: "rgba(237,225,210,0.15)", border: "1px solid rgba(237,225,210,0.25)", color: "rgba(237,225,210,0.8)", fontSize: "0.68rem", borderRadius: "50px", padding: "0.22rem 0.65rem" }}>{tag}</span>)}</div>
-                  <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn-book" style={{ display: "block", background: C.gold, color: C.dark, textAlign: "center", borderRadius: "50px", padding: "0.82rem 1.5rem", fontSize: "0.88rem", fontWeight: 700, textDecoration: "none", transition: "all 0.2s" }}>Réserver ce soin chez Husna Beauty →</a>
-                </div>
-              )}
-              <div style={{ paddingTop: "0.85rem", borderTop: `1px solid rgba(203,184,157,0.38)` }}>
-                <button className="btn-outline" onClick={reset} style={{ background: "transparent", color: C.brown, border: `1.5px solid ${C.brown}`, borderRadius: "50px", padding: "0.72rem 1.5rem", fontSize: "0.83rem", fontWeight: 600, cursor: "pointer", width: "100%", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginBottom: "0.7rem" }}>✦ Nouveau diagnostic</button>
-                <p style={{ color: "#9a8a82", fontSize: "0.69rem", textAlign: "center", lineHeight: 1.5 }}>Ce diagnostic est indicatif. Pour un bilan complet, prends rendez-vous chez Husna Beauty.</p>
-              </div>
-            </div>
-          )}
-        </div>
-        <div style={{ marginTop: "1rem" }}><p style={{ color: `${C.brown}60`, fontSize: "0.66rem", letterSpacing: "0.1em", textAlign: "center" }}>HUSNA BEAUTY STUDIO · DIAGNOSTIC IA</p></div>
-      </div>
-    </>
+        step === "result" && React.createElement("div", { className: "anim" },
+          React.createElement("div", { style: { display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1rem", paddingBottom: "1rem", borderBottom: "1px solid rgba(203,184,157,0.4)" } },
+            photoPreview && React.createElement("img", { src: photoPreview, alt: "", style: { width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", border: "2px solid #cbb89d", flexShrink: 0 } }),
+            React.createElement("div", null,
+              React.createElement("div", { style: { color: C.brown, fontSize: "0.67rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600, marginBottom: "0.12rem" } }, "Husna Beauty · Diagnostic"),
+              React.createElement("div", { style: { fontFamily: "'Playfair Display', serif", color: C.dark, fontSize: "1.08rem", fontWeight: 700 } }, "Ton analyse de peau")
+            )
+          ),
+          React.createElement("div", { style: { maxHeight: "36vh", overflowY: "auto", paddingRight: "0.25rem", marginBottom: "1.2rem" } }, formatResult(result)),
+          soinReco && React.createElement("div", { style: { background: "linear-gradient(135deg, #5d2510, #7a3520)", borderRadius: "16px", padding: "1.25rem 1.35rem", marginBottom: "1.1rem" } },
+            React.createElement("div", { style: { color: "rgba(237,225,210,0.65)", fontSize: "0.66rem", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "0.45rem", fontWeight: 600 } }, "✦ Le soin Husna Beauty fait pour toi"),
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.45rem" } },
+              React.createElement("div", { style: { fontFamily: "'Playfair Display', serif", color: "#fff", fontSize: "1.08rem", fontWeight: 700, flex: 1 } }, soinReco.nom),
+              React.createElement("div", { style: { textAlign: "right", flexShrink: 0, marginLeft: "0.75rem" } },
+                React.createElement("div", { style: { color: C.gold, fontSize: "1rem", fontWeight: 700 } }, soinReco.prix),
+                React.createElement("div", { style: { color: "rgba(237,225,210,0.6)", fontSize: "0.71rem" } }, soinReco.duree)
+              )
+            ),
+            React.createElement("p", { style: { color: "rgba(237,225,210,0.82)", fontSize: "0.81rem", lineHeight: 1.6, marginBottom: "1rem" } }, soinReco.desc),
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "0.35rem", marginBottom: "1rem" } },
+              soinReco.tags.map(function(tag) {
+                return React.createElement("span", { key: tag, style: { background: "rgba(237,225,210,0.15)", border: "1px solid rgba(237,225,210,0.25)", color: "rgba(237,225,210,0.8)", fontSize: "0.68rem", borderRadius: "50px", padding: "0.22rem 0.65rem" } }, tag);
+              })
+            ),
+            React.createElement("a", { href: BOOKING_URL, target: "_blank", rel: "noopener noreferrer", className: "btn-book" }, "Réserver ce soin chez Husna Beauty →")
+          ),
+          React.createElement("div", { style: { paddingTop: "0.85rem", borderTop: "1px solid rgba(203,184,157,0.38)" } },
+            React.createElement("button", { className: "btn-outline", onClick: reset }, "✦ Nouveau diagnostic"),
+            React.createElement("p", { style: { color: "#9a8a82", fontSize: "0.69rem", textAlign: "center", lineHeight: 1.5 } }, "Ce diagnostic est indicatif. Pour un bilan complet, prends rendez-vous chez Husna Beauty.")
+          )
+        )
+      ),
+      React.createElement("div", { style: { marginTop: "1rem" } },
+        React.createElement("p", { style: { color: "rgba(93,37,16,0.4)", fontSize: "0.66rem", letterSpacing: "0.1em", textAlign: "center" } }, "HUSNA BEAUTY STUDIO · DIAGNOSTIC IA")
+      )
+    )
   );
 }
