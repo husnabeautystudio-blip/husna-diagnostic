@@ -253,7 +253,7 @@ export default function HusnaDiagnostic() {
 
               <label style={{ color: C.brown, fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: "0.4rem" }}>Ta tranche d'âge</label>
               <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.7rem" }}>
-                {["18-25", "26-35", "36-45", "46+"].map(a => (
+           {["15-17", "18-25", "26-35", "36-45", "46+"].map(a => (
                   <button key={a} className={`age-btn ${age === a ? "selected" : ""}`} onClick={() => setAge(a)}>{a}</button>
                 ))}
               </div>
