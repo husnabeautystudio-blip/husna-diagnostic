@@ -72,16 +72,22 @@ const QUESTIONS = [
 const C = { beige: "#ede1d2", dark: "#412F26", brown: "#5d2510", tan: "#cbb89d", gold: "#d49d10" };
 
 export default function HusnaDiagnostic() {
-  const [step, setStep] = useState("welcome");
+  const [step, setStep] = useState("intro");
+  const [prenom, setPrenom] = useState("");
+  const [age, setAge] = useState("");
+  const [telephone, setTelephone] = useState("");
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [answers, setAnswers] = useState({});
   const [currentQ, setCurrentQ] = useState(0);
   const [result, setResult] = useState(null);
   const [soinReco, setSoinReco] = useState(null);
-  const [emailSent, setEmailSent] = useState(false);
-  const [sendingEmail, setSendingEmail] = useState(false);
   const fileRef = useRef();
+
+  function handleIntroSubmit() {
+    if (!prenom.trim() || !age || !telephone.trim()) return;
+    setStep("welcome");
+  }
 
   function handlePhoto(e) {
     const file = e.target.files[0];
@@ -109,14 +115,11 @@ export default function HusnaDiagnostic() {
         img.onload = function() {
           var canvas = document.createElement("canvas");
           var MAX = 800;
-          var w = img.width;
-          var h = img.height;
+          var w = img.width, h = img.height;
           if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
           if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-          canvas.width = w;
-          canvas.height = h;
-          var ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, w, h);
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
           resolve(canvas.toDataURL("image/jpeg", 0.7).split(",")[1]);
         };
         img.onerror = reject;
@@ -148,7 +151,7 @@ export default function HusnaDiagnostic() {
             role: "user",
             content: [
               { type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
-              { type: "text", text: "Tu es l'IA de diagnostic de HUSNA Beauty, expert en peaux mélanisées. Analyse avec bienveillance et expertise.\n\nRéponses :\n" + answersText + "\n\nDonne un diagnostic en 4 parties :\n1. **Type de peau identifié**\n2. **Ce que j'observe sur ta peau** (3-4 observations basées sur la photo)\n3. **Tes besoins prioritaires** (top 3 en bullet points)\n4. **Mes conseils Husna Beauty** (actifs, habitudes, conseils adaptés à ta carnation)\n\nSois chaleureuse, directe, experte. Max 250 mots." }
+              { type: "text", text: "Tu es l'IA de diagnostic de HUSNA Beauty, expert en peaux mélanisées. Analyse avec bienveillance et expertise.\n\nCliente : " + prenom + ", " + age + " ans\n\nRéponses :\n" + answersText + "\n\nDonne un diagnostic en 4 parties en tutoyant la cliente par son prénom :\n1. **Type de peau identifié**\n2. **Ce que j'observe sur ta peau** (3-4 observations basées sur la photo)\n3. **Tes besoins prioritaires** (top 3 en bullet points)\n4. **Mes conseils Husna Beauty** (actifs, habitudes, conseils adaptés à ta carnation)\n\nSois chaleureuse, directe, experte. Max 250 mots." }
             ]
           }]
         })
@@ -156,18 +159,16 @@ export default function HusnaDiagnostic() {
 
       const data = await response.json();
       let text = "";
-      if (data.content) {
-        data.content.forEach(b => { if (b.text) text += b.text; });
-      }
+      if (data.content) data.content.forEach(b => { if (b.text) text += b.text; });
       setResult(text || "Diagnostic indisponible.");
       setStep("result");
 
-      // Auto-envoyer le diagnostic à Husna Beauty
+      // Auto-envoyer à Husna Beauty
       try {
         await fetch("/api/send-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ diagnostic: text, soin }),
+          body: JSON.stringify({ diagnostic: text, soin, prenom, age, telephone }),
         });
       } catch(e) {}
 
@@ -178,35 +179,26 @@ export default function HusnaDiagnostic() {
   }
 
   function reset() {
-    setStep("welcome");
-    setPhoto(null);
-    setPhotoPreview(null);
-    setAnswers({});
-    setCurrentQ(0);
-    setResult(null);
-    setSoinReco(null);
-    setEmailSent(false);
+    setStep("intro");
+    setPrenom(""); setAge(""); setTelephone("");
+    setPhoto(null); setPhotoPreview(null);
+    setAnswers({}); setCurrentQ(0);
+    setResult(null); setSoinReco(null);
   }
 
   function formatResult(text) {
     return text.split("\n").map((line, i) => {
-      if (line.match(/^#+\s/)) {
-        return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{line.replace(/^#+\s/, "")}</h3>;
-      }
+      if (line.match(/^#+\s/)) return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{line.replace(/^#+\s/, "")}</h3>;
       if (line.match(/^\d\.\s?\*\*/)) {
         const content = line.replace(/^\d\.\s?\*\*/, "").replace(/\*\*$/, "").replace(/\*\*/g, "");
-        const num = line.match(/^\d/)[0];
-        return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{num}. {content}</h3>;
+        return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{line.match(/^\d/)[0]}. {content}</h3>;
       }
-      if (line.startsWith("**") && line.endsWith("**")) {
-        return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{line.replace(/\*\*/g, "")}</h3>;
-      }
+      if (line.startsWith("**") && line.endsWith("**")) return <h3 key={i} style={{ color: C.brown, fontSize: "0.96rem", margin: "1rem 0 0.28rem", fontWeight: 700 }}>{line.replace(/\*\*/g, "")}</h3>;
       if (line.startsWith("- ") || line.startsWith("• ") || line.match(/^[\*✦]\s/)) {
-        const txt = line.replace(/^[-•\*✦]\s/, "").replace(/\*\*(.*?)\*\*/g, "$1");
         return (
           <div key={i} style={{ display: "flex", gap: "0.45rem", margin: "0.2rem 0" }}>
             <span style={{ color: C.gold, flexShrink: 0, fontWeight: 700 }}>✦</span>
-            <span style={{ color: C.dark, fontSize: "0.85rem", lineHeight: 1.6 }}>{txt}</span>
+            <span style={{ color: C.dark, fontSize: "0.85rem", lineHeight: 1.6 }}>{line.replace(/^[-•\*✦]\s/, "").replace(/\*\*(.*?)\*\*/g, "$1")}</span>
           </div>
         );
       }
@@ -233,7 +225,12 @@ export default function HusnaDiagnostic() {
         .upload-zone { border: 2px dashed #cbb89d; border-radius: 16px; padding: 1.9rem 1.4rem; text-align: center; cursor: pointer; background: rgba(237,225,210,0.3); }
         .upload-zone:hover { border-color: #5d2510; }
         .btn-book { display: block; background: #d49d10; color: #412F26; text-align: center; border-radius: 50px; padding: 0.82rem 1.5rem; font-size: 0.88rem; font-weight: 700; text-decoration: none; }
+        .btn-main { display: block; width: 100%; background: #5d2510; color: #fff; border: none; border-radius: 50px; padding: 0.85rem 1.5rem; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-bottom: 0.7rem; }
         .btn-outline { background: transparent; color: #5d2510; border: 1.5px solid #5d2510; border-radius: 50px; padding: 0.72rem 1.5rem; font-size: 0.83rem; font-weight: 600; cursor: pointer; width: 100%; font-family: 'DM Sans', sans-serif; margin-bottom: 0.7rem; }
+        .field { width: 100%; border: 1px solid #cbb89d; border-radius: 10px; padding: 0.75rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: #412F26; outline: none; margin-bottom: 0.7rem; background: #fff; }
+        .field:focus { border-color: #5d2510; }
+        .age-btn { flex: 1; background: #fff; border: 1px solid #cbb89d; border-radius: 10px; padding: 0.6rem 0.5rem; color: #412F26; font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center; transition: all 0.2s; }
+        .age-btn.selected { background: #5d2510; color: #fff; border-color: #5d2510; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbb89d; border-radius: 4px; }
       `}</style>
@@ -246,10 +243,43 @@ export default function HusnaDiagnostic() {
 
         <div className="anim" style={{ background: "#fff", borderRadius: "20px", boxShadow: "0 4px 36px rgba(65,47,38,0.09)", padding: "1.9rem 1.7rem", maxWidth: "520px", width: "100%", border: "1px solid rgba(203,184,157,0.35)" }}>
 
-          {step === "welcome" && (
+          {step === "intro" && (
             <div>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", color: C.dark, fontWeight: 700, lineHeight: 1.3, marginBottom: "0.6rem" }}>Ton diagnostic<br />peau personnalisé</h1>
-              <p style={{ color: "#6a5a52", fontSize: "0.86rem", lineHeight: 1.65, marginBottom: "1.6rem" }}>Uploade une photo en lumière naturelle, réponds à 5 questions — et reçois une analyse experte avec le soin Husna Beauty fait pour toi.</p>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: C.dark, fontWeight: 700, lineHeight: 1.3, marginBottom: "0.5rem" }}>Bienvenue chez<br />Husna Beauty ✦</h1>
+              <p style={{ color: "#6a5a52", fontSize: "0.84rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>Avant de commencer ton diagnostic, dis-moi qui tu es 🌸</p>
+
+              <label style={{ color: C.brown, fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: "0.4rem" }}>Ton prénom</label>
+              <input className="field" type="text" placeholder="Ex: Sarah" value={prenom} onChange={e => setPrenom(e.target.value)} />
+
+              <label style={{ color: C.brown, fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: "0.4rem" }}>Ta tranche d'âge</label>
+              <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.7rem" }}>
+                {["18-25", "26-35", "36-45", "46+"].map(a => (
+                  <button key={a} className={`age-btn ${age === a ? "selected" : ""}`} onClick={() => setAge(a)}>{a}</button>
+                ))}
+              </div>
+
+              <label style={{ color: C.brown, fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: "0.4rem" }}>Ton numéro de téléphone</label>
+              <input className="field" type="tel" placeholder="Ex: 06 12 34 56 78" value={telephone} onChange={e => setTelephone(e.target.value)} />
+
+              <button
+                className="btn-main"
+                onClick={handleIntroSubmit}
+                disabled={!prenom.trim() || !age || !telephone.trim()}
+                style={{ opacity: (!prenom.trim() || !age || !telephone.trim()) ? 0.5 : 1 }}
+              >
+                Commencer mon diagnostic →
+              </button>
+
+              <p style={{ color: "#9a8a82", fontSize: "0.7rem", textAlign: "center", lineHeight: 1.5 }}>
+                🔒 Tes informations sont confidentielles et utilisées uniquement par Husna Beauty.
+              </p>
+            </div>
+          )}
+
+          {step === "welcome" && (
+            <div className="anim">
+              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", color: C.dark, fontWeight: 700, lineHeight: 1.3, marginBottom: "0.5rem" }}>Bonjour {prenom} ! 🌸</h2>
+              <p style={{ color: "#6a5a52", fontSize: "0.86rem", lineHeight: 1.65, marginBottom: "1.6rem" }}>Uploade une photo de ta peau en lumière naturelle pour commencer ton analyse personnalisée.</p>
               <div className="upload-zone" onClick={() => fileRef.current.click()}>
                 <div style={{ fontSize: "1.9rem", marginBottom: "0.65rem" }}>📸</div>
                 <div style={{ fontFamily: "'Playfair Display', serif", color: C.brown, fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.3rem" }}>Ajoute une photo de ta peau</div>
@@ -259,7 +289,7 @@ export default function HusnaDiagnostic() {
               <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhoto} />
               <div style={{ marginTop: "1rem", padding: "0.65rem 0.85rem", background: "rgba(237,225,210,0.5)", borderRadius: "10px", display: "flex", gap: "0.5rem" }}>
                 <span>🔒</span>
-                <p style={{ color: "#8a7a72", fontSize: "0.72rem", lineHeight: 1.5 }}>Ta photo est utilisée uniquement pour ce diagnostic et n'est pas conservée.</p>
+                <p style={{ color: "#8a7a72", fontSize: "0.72rem", lineHeight: 1.5 }}>Ta photo est utilisée uniquement pour ce diagnostic.</p>
               </div>
             </div>
           )}
@@ -292,7 +322,7 @@ export default function HusnaDiagnostic() {
             <div className="anim" style={{ textAlign: "center", padding: "2.5rem 0" }}>
               <div style={{ width: "75px", height: "75px", borderRadius: "50%", background: "rgba(93,37,16,0.07)", border: "2px solid rgba(93,37,16,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.9rem", margin: "0 auto 1.3rem", animation: "pulse 2s infinite" }}>✨</div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: C.dark, fontWeight: 700, marginBottom: "0.6rem" }}>Analyse en cours…</h2>
-              <p style={{ color: "#6a5a52", fontSize: "0.84rem", lineHeight: 1.6 }}>L'IA examine ta photo et tes réponses pour préparer ton diagnostic sur mesure.</p>
+              <p style={{ color: "#6a5a52", fontSize: "0.84rem", lineHeight: 1.6 }}>L'IA prépare ton diagnostic personnalisé, {prenom} 🌸</p>
               <div style={{ display: "flex", justifyContent: "center", gap: "0.36rem", marginTop: "1.3rem" }}>
                 {[0,1,2].map(i => <div key={i} style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.brown, animation: `pulse 1.4s ${i * 0.2}s infinite` }} />)}
               </div>
@@ -305,7 +335,7 @@ export default function HusnaDiagnostic() {
                 {photoPreview && <img src={photoPreview} alt="" style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", border: "2px solid #cbb89d", flexShrink: 0 }} />}
                 <div>
                   <div style={{ color: C.brown, fontSize: "0.67rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600, marginBottom: "0.12rem" }}>Husna Beauty · Diagnostic</div>
-                  <div style={{ fontFamily: "'Playfair Display', serif", color: C.dark, fontSize: "1.08rem", fontWeight: 700 }}>Ton analyse de peau</div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", color: C.dark, fontSize: "1.08rem", fontWeight: 700 }}>Analyse de {prenom}</div>
                 </div>
               </div>
 
@@ -336,7 +366,7 @@ export default function HusnaDiagnostic() {
               <div style={{ background: "rgba(237,225,210,0.4)", borderRadius: "12px", padding: "0.9rem 1rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
                 <span style={{ fontSize: "1.1rem" }}>📧</span>
                 <p style={{ color: "#6a5a52", fontSize: "0.78rem", lineHeight: 1.5 }}>
-                  Ce diagnostic a été automatiquement envoyé à Husna Beauty pour assurer ton suivi. ✓
+                  Ton diagnostic a été envoyé à Husna Beauty pour assurer ton suivi. ✓
                 </p>
               </div>
 
