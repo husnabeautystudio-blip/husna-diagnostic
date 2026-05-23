@@ -34,7 +34,9 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from: 'Husna Beauty <onboarding@resend.dev>',
         to: ['husnabeautystudio@gmail.com'],
-        subject: '✨ Nouveau diagnostic client — Husna Beauty',
+        subject: '<p style="color:#5d2510;font-size:0.9rem;margin-bottom:1rem;">
+  👤 ${req.body.prenom || ''} · ${req.body.age || ''} ans · 📞 ${req.body.telephone || ''}
+</p>
         html,
       }),
     });
